@@ -10,9 +10,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.crossprocesseventbus.R;
 import com.example.crossprocesseventbus.service.CalculatorService;
 import com.google.gson.Gson;
+import com.nobugexception.hermes.EventMessage;
 import com.nobugexception.hermes.Request;
 import com.nobugexception.hermes.Responce;
 import com.nobugexception.hermes.hermes.Hermes;
+import com.nobugexception.hermes.hermes.HermesInvocationHander;
+
+import java.lang.reflect.Proxy;
 
 public class SecondActivity extends AppCompatActivity {
 
@@ -115,8 +119,18 @@ public class SecondActivity extends AppCompatActivity {
         button_5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-//                Hermes.getDefault().post();
+                Message message = new Message();
+                message.setName("何化龙");
+//                EventMessage message = new EventMessage();
+                Hermes.getDefault().postMessage(message);
+                Class clazz = null;
+                try {
+                    clazz = Class.forName(Message.class.getName());
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                IMessage message1 = (IMessage) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[]{IMessage.class}, new HermesInvocationHander(message));
+                Log.d("yunchong", "message1:"+message1.getName());
             }
         });
 

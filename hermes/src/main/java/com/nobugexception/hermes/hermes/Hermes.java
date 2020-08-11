@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.RemoteException;
 import com.nobugexception.hermes.EventMessage;
 import com.nobugexception.hermes.IHermesService;
@@ -156,6 +157,26 @@ public class Hermes {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    /**
+     * 发送消息
+     * @param hermesMessage
+     */
+    public void postMessage(Object hermesMessage) {
+
+        if (isConnect){
+//            IHermesService iHermesService = mHermesService.get(HermesService.class);
+//            if (iHermesService == null){
+//                return;
+//            } else {
+//                try {
+//                    iHermesService.post(eventMessage);
+//                } catch (RemoteException e) {
+//                    e.printStackTrace();
+//                }
+//            }
         }
     }
 

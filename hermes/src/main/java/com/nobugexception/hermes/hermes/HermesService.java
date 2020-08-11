@@ -12,6 +12,8 @@ import com.nobugexception.hermes.Request;
 import com.nobugexception.hermes.Responce;
 import com.nobugexception.hermes.eventbus.NoHermesEventBus;
 
+import java.lang.reflect.Proxy;
+
 public abstract class HermesService extends Service {
 
     @Nullable
@@ -37,6 +39,7 @@ public abstract class HermesService extends Service {
 
         @Override
         public void post(EventMessage event) throws RemoteException {
+
             NoHermesEventBus.getDefault().post(event);
         }
     }
