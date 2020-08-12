@@ -2,6 +2,7 @@ package com.example.crossprocesseventbus.service;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.crossprocesseventbus.R;
+import com.example.crossprocesseventbus.client.Message;
 import com.example.crossprocesseventbus.client.SecondActivity;
 import com.nobugexception.hermes.eventbus.NoHermesEventBus;
 import com.nobugexception.hermes.eventbus.NoHermesSubscribe;
@@ -50,6 +52,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @NoHermesSubscribe(threadMode = NoHermesThreadMode.MAIN, sticky = false)
+    public void getMessage(Message message){
+        Log.d("yunchong", "Name:"+message.getName());
     }
 
     @NoHermesSubscribe(threadMode = NoHermesThreadMode.MAIN, sticky = false)

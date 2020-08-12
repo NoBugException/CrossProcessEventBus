@@ -6,6 +6,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import androidx.annotation.Nullable;
 
+import com.google.gson.Gson;
 import com.nobugexception.hermes.EventMessage;
 import com.nobugexception.hermes.IHermesService;
 import com.nobugexception.hermes.Request;
@@ -14,7 +15,7 @@ import com.nobugexception.hermes.eventbus.NoHermesEventBus;
 
 import java.lang.reflect.Proxy;
 
-public abstract class HermesService extends Service {
+public class HermesService extends Service {
 
     @Nullable
     @Override
@@ -33,17 +34,24 @@ public abstract class HermesService extends Service {
                 responce.setResultCode(ResultCode.ERROR_CODE_3);
                 return responce;
             } else {
-                return getResponce(request);
+                return null;
+//                return getResponce(request);
             }
         }
 
         @Override
         public void post(EventMessage event) throws RemoteException {
 
-            NoHermesEventBus.getDefault().post(event);
+            try {
+                Class clazz = Class.forName(event.getClassFullName());
+                Object object = new Gson().fromJson(event.getData(), clazz);
+                NoHermesEventBus.getDefault().post(object);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    protected abstract Responce getResponce(Request request);
+//    protected abstract Responce getResponce(Request request);
 
 }

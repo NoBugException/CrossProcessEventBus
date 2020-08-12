@@ -21,6 +21,10 @@
         <activity
             android:process=":sss"
             android:name=".client.SecondActivity"/>
+
+        <service
+            android:name="com.nobugexception.hermes.hermes.HermesService"/>
+
         <service
             android:name=".service.CalculatorService"/>
     </application>

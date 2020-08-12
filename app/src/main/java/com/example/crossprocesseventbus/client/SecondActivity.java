@@ -15,6 +15,7 @@ import com.nobugexception.hermes.Request;
 import com.nobugexception.hermes.Responce;
 import com.nobugexception.hermes.hermes.Hermes;
 import com.nobugexception.hermes.hermes.HermesInvocationHander;
+import com.nobugexception.hermes.hermes.HermesService;
 
 import java.lang.reflect.Proxy;
 
@@ -30,9 +31,6 @@ public class SecondActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
-
-        // 客户端连接服务器
-        Hermes.getDefault().connect(CalculatorService.class);
 
         button_1 = findViewById(R.id.button_1);
         button_2 = findViewById(R.id.button_2);
@@ -121,16 +119,7 @@ public class SecondActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Message message = new Message();
                 message.setName("何化龙");
-//                EventMessage message = new EventMessage();
-                Hermes.getDefault().postMessage(message);
-                Class clazz = null;
-                try {
-                    clazz = Class.forName(Message.class.getName());
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-                IMessage message1 = (IMessage) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[]{IMessage.class}, new HermesInvocationHander(message));
-                Log.d("yunchong", "message1:"+message1.getName());
+                Hermes.getDefault().post(message);
             }
         });
 

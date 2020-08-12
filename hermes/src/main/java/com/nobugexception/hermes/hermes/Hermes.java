@@ -7,6 +7,8 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
+
+import com.google.gson.Gson;
 import com.nobugexception.hermes.EventMessage;
 import com.nobugexception.hermes.IHermesService;
 import com.nobugexception.hermes.Request;
@@ -77,7 +79,7 @@ public class Hermes {
      * 可能会连接多个服务，所以需要传递服务类字节码，以区分连接不同的服务
      * 连接成功会保存代理对象，连接失败会移除代理对象
      */
-    public void connect(Class<? extends HermesService> serviceClass) {
+    private void connect(Class<? extends HermesService> serviceClass) {
         Intent intent = new Intent(mContext, serviceClass);
         mContext.bindService(intent, new HermesServiceConnection(serviceClass), Context.BIND_AUTO_CREATE);
     }
@@ -142,41 +144,58 @@ public class Hermes {
     }
 
     /**
-     * 发送数据
+     * 发送消息
+     * @param hermesMessage
      */
-    public void post(EventMessage eventMessage) {
-
+    public void post(Object hermesMessage) {
+        if(hermesMessage == null){
+            return;
+        }
         if (isConnect){
             IHermesService iHermesService = mHermesService.get(HermesService.class);
             if (iHermesService == null){
                 return;
             } else {
+                EventMessage eventMessage = new EventMessage();
+                eventMessage.setClassFullName(hermesMessage.getClass().getName());
+                eventMessage.setData(new Gson().toJson(hermesMessage));
+                eventMessage.setSticky(false);
                 try {
                     iHermesService.post(eventMessage);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
             }
+        } else {
+            connect(HermesService.class);
         }
     }
 
     /**
-     * 发送消息
+     * 发送粘性消息
      * @param hermesMessage
      */
-    public void postMessage(Object hermesMessage) {
-
+    public void postSticky(Object hermesMessage){
+        if(hermesMessage == null){
+            return;
+        }
         if (isConnect){
-//            IHermesService iHermesService = mHermesService.get(HermesService.class);
-//            if (iHermesService == null){
-//                return;
-//            } else {
-//                try {
-//                    iHermesService.post(eventMessage);
-//                } catch (RemoteException e) {
-//                    e.printStackTrace();
-//                }
-//            }
+            IHermesService iHermesService = mHermesService.get(HermesService.class);
+            if (iHermesService == null){
+                return;
+            } else {
+                EventMessage eventMessage = new EventMessage();
+                eventMessage.setClassFullName(hermesMessage.getClass().getName());
+                eventMessage.setData(new Gson().toJson(hermesMessage));
+                eventMessage.setSticky(true);
+                try {
+                    iHermesService.post(eventMessage);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            connect(HermesService.class);
         }
     }
 
