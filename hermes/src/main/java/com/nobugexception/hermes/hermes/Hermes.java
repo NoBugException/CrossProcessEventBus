@@ -54,12 +54,21 @@ public class Hermes {
 
         private Class<? extends HermesService> mServiceClass;
 
+        private IHermesConnected hermesConnected;
+
         public HermesServiceConnection(Class<? extends HermesService> serviceClass){
             this.mServiceClass = serviceClass;
         }
 
+        public HermesServiceConnection(Class<? extends HermesService> serviceClass, IHermesConnected hermesConnected){
+            this.mServiceClass = serviceClass;
+            this.hermesConnected = hermesConnected;
+        }
+
+
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            hermesConnected.success();
             isConnect = true;
             IHermesService iEventMessage = IHermesService.Stub.asInterface(service);
             if(iEventMessage != null){
@@ -69,6 +78,7 @@ public class Hermes {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            hermesConnected.failed();
             isConnect = false;
             mHermesService.remove(mServiceClass);
         }
@@ -82,6 +92,16 @@ public class Hermes {
     private void connect(Class<? extends HermesService> serviceClass) {
         Intent intent = new Intent(mContext, serviceClass);
         mContext.bindService(intent, new HermesServiceConnection(serviceClass), Context.BIND_AUTO_CREATE);
+    }
+
+    /**
+     * 客户端进程，连接服务器进程
+     * 可能会连接多个服务，所以需要传递服务类字节码，以区分连接不同的服务
+     * 连接成功会保存代理对象，连接失败会移除代理对象
+     */
+    private void connect(Class<? extends HermesService> serviceClass, IHermesConnected hermesConnected) {
+        Intent intent = new Intent(mContext, serviceClass);
+        mContext.bindService(intent, new HermesServiceConnection(serviceClass, hermesConnected), Context.BIND_AUTO_CREATE);
     }
 
     /**
@@ -147,7 +167,7 @@ public class Hermes {
      * 发送消息
      * @param hermesMessage
      */
-    public void post(Object hermesMessage) {
+    public void post(final Object hermesMessage) {
         if(hermesMessage == null){
             return;
         }
@@ -167,7 +187,17 @@ public class Hermes {
                 }
             }
         } else {
-            connect(HermesService.class);
+            connect(HermesService.class, new IHermesConnected() {
+                @Override
+                public void success() {
+                    post(hermesMessage);
+                }
+
+                @Override
+                public void failed() {
+                    // 不处理
+                }
+            });
         }
     }
 
@@ -175,7 +205,7 @@ public class Hermes {
      * 发送粘性消息
      * @param hermesMessage
      */
-    public void postSticky(Object hermesMessage){
+    public void postSticky(final Object hermesMessage){
         if(hermesMessage == null){
             return;
         }
@@ -195,7 +225,17 @@ public class Hermes {
                 }
             }
         } else {
-            connect(HermesService.class);
+            connect(HermesService.class, new IHermesConnected() {
+                @Override
+                public void success() {
+                    post(hermesMessage);
+                }
+
+                @Override
+                public void failed() {
+                    // 不处理
+                }
+            });
         }
     }
 
